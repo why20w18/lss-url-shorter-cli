@@ -32,16 +32,18 @@ auzunluk = getJSON("ozellestirme","ayrac_uzunluk")
 
 yardim = rmav+ asembol*auzunluk + rbitir + f'''
 {ryes}YARDIM SAYFASI{rbitir} 
-    MEVCUT VERSIYON:{versiyon}
-    T EMEL KOMUTLAR:
+    
+     MEVCUT VERSIYON: {rmav}{versiyon}{rbitir}
+    
+      TEMEL KOMUTLAR:
     {rmav}lss{rbitir} {rkir}[URL]{rbitir}
     {rmav}lss{rbitir} {rkir}[URL]{rbitir} {rkir}[KAYNAK]{rbitir}
     
-    TEMEL KULLANIMLAR:
+      TEMEL KULLANIMLAR:
     {rmav}lss{rbitir} www.google.com         : cfg.json dosyasından rastgele API seçer
     {rmav}lss{rbitir} www.google.com k1      : cfg.json dosyasındaki k1 API'sini seçer
     
-    EK KOMUTLAR:
+      EK KOMUTLAR:
     {rmav}lss{rbitir} {rkir}-h{rbitir}       : yardım sayfasını başlatır                      (help)
     
     {rmav}lss{rbitir} {rkir}-v{rbitir}       : versiyon numarası sayfasını başlatır           (versiyon)
@@ -118,8 +120,8 @@ def guncellemeVarMi():
 
     try:
         if sys.argv[2] == "kur":
-            print("eski executable versiyon siliniyor ...")
-            os.system("rm -r lss")
+            print("lss executable indirmesi başladı ...")
+            os.system("mv lss lss_eski")
             print(rkir,"toplam indirme boyutu : ",boyut, "MB", rbitir+"\n",sep='')
             subprocess.run(["wget", indirme_link])
             print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi", rbitir,sep='\n')
@@ -162,7 +164,7 @@ def main():
         print(rkir,'fazladan parametre girdiniz yardım için "-h"',rbitir,sep='')
 
     else:
-        if sys.argv[1] or sys.argv[1] and sys.argv[2] in ekKomutlar:
+        if sys.argv[1] in ekKomutlar:
             ekKomutlar[sys.argv[1]]()
         else:
             url = sys.argv[1]
