@@ -68,6 +68,11 @@ def gecmis_oku():
     print(gecmis)
     dosya.close()
 
+def gecmis_sil():
+    dosya = open('.gecmis.txt','w')
+    print('SON SILINME TARIHI:',str(datetime.now()),file=dosya)
+    dosya.close()
+    print(ryes+"GECMIS KAYITLARI SILINDI[+]"+rbitir)
 def tum_apiler():
     print(rmav,"KULLANILAN TUM APILER",rbitir,sep='')
     tum = getJSON("kaynakAPI")
@@ -82,9 +87,9 @@ def main():
         "-v": lambda : print(rmav+'lss versiyon 1.0.0'+rbitir,"github.com/why20w18",sep='\n'),
         "-u": lambda : print('updt'),
         "-g": gecmis_oku,
-        "-gs": lambda : print(2),
+        "-gs": gecmis_sil,
         "-pe": lambda : print(2),
-        "-ta": lambda : tum_apiler(),
+        "-ta": tum_apiler,
         "-a": lambda : print(2)
     }
     if len(sys.argv) == 1:
