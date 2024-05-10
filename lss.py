@@ -138,7 +138,7 @@ def guncellemeVarMi():
         if guncelDegil and versiyon != str(guncel_versiyon).strip():(
             print(ryes,"GUNCELLEME VAR !",rbitir
                   +"\n"+"yeni versiyon: ",
-                  rmav,str(guncel_versiyon).strip()[16:21]
+                  rmav,str(guncel_versiyon).strip()[:]
                   ,rbitir,sep=''))
 
         else:
