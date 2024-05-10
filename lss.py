@@ -17,6 +17,8 @@ def getJSON(kategori,key=None):
             quit()
         return donus
 
+versiyon = "1.0.0"
+
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
 rmav = "\033[1;34m"
@@ -39,7 +41,8 @@ yardim = rmav+ asembol*auzunluk + rbitir + f'''
     EK KOMUTLAR:
     {rmav}lss{rbitir} {rkir}-h{rbitir}  : yardım sayfasını başlatır                      (help)
     {rmav}lss{rbitir} {rkir}-v{rbitir}  : versiyon numarası sayfasını başlatır           (versiyon)
-    {rmav}lss{rbitir} {rkir}-u{rbitir}  : güncelleme varsa otomatik olarak günceller     (update)
+    {rmav}lss{rbitir} {rkir}-uc{rbitir}  : güncelleme varmi kontrol eder                 (update-check)
+    {rmav}lss{rbitir} {rkir}-uc{rbitir}  : güncellemeyi otomatik olarak indirip kurar    (update-apply)
     {rmav}lss{rbitir} {rkir}-g{rbitir}  : kısaltılan linkleri tarih damgası ile gösterir (geçmiş)
     {rmav}lss{rbitir} {rkir}-gs{rbitir} : kayıtların tutulduğu geçmişi siler             (geçmiş-sil)
     {rmav}lss{rbitir} {rkir}-pe{rbitir} : programı otomatik olarak pathe ekler           (path-ekle)
@@ -87,11 +90,31 @@ def tum_apiler():
             continue
         else:
             print(s)
+
+def iversiyon():
+    print("lss versiyon : ",rmav,versiyon,rbitir,sep='')
+def guncellemeVarMi():
+    r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
+    guncel_release = r.json()
+    guncel_versiyon = guncel_release["name"]
+    versiyon_no = str(guncel_versiyon).strip()[16:21]
+
+    if versiyon != versiyon_no:
+        print(ryes,"GUNCELLEME VAR !",rbitir+"\n"
+                                             "yeni versiyon: ",
+              rmav,str(guncel_versiyon).strip()[16:21],rbitir
+              ,sep='')
+
+    else:
+        print(ryes+"lls EN GUNCEL VERSIYONDA !",rbitir+
+              "MEVCUT VERSIYON :" + guncel_versiyon,sep='\n')
+
+
 def main():
     ekKomutlar = {
         "-h": lambda : print(yardim),
-        "-v": lambda : print(rmav+'lss versiyon 1.0.1'+rbitir,"github.com/why20w18",sep='\n'),
-        "-u": lambda : print('updt'),
+        "-v": iversiyon,
+        "-uc": lambda : guncellemeVarMi(),
         "-g": gecmis_oku,
         "-gs": gecmis_sil,
         "-pe": lambda : print(2),
@@ -123,4 +146,6 @@ def main():
 if sys.version_info.major == 3 and sys.version_info.minor >= 3:
     main()
 else:
-    print("python versiyonunuz:",sys.version_info,"\b\nlss için minimum python versiyonu 3.3'dür")
+    print("python versiyonunuz:",sys.version_info,""
+                                                  "\b\nlss için minimum python versiyonu 3.3'dür\n"
+                                                  "python kurmak istemiyorsanız lss_executable versiyonu indirebilirsiniz")
