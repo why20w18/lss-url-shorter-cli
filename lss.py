@@ -69,8 +69,13 @@ def gecmis_oku():
     dosya.close()
 
 def tum_apiler():
-    
-
+    print(rmav,"KULLANILAN TUM APILER",rbitir,sep='')
+    tum = getJSON("kaynakAPI")
+    for s in dict(tum).values():
+        if s == getJSON("kaynakAPI","kaynak_sayisi"):
+            continue
+        else:
+            print(s)
 def main():
     ekKomutlar = {
         "-h": lambda : print(yardim),
@@ -79,7 +84,7 @@ def main():
         "-g": gecmis_oku,
         "-gs": lambda : print(2),
         "-pe": lambda : print(2),
-        "-ta": lambda : print(list(getJSON("kaynakAPI"))),
+        "-ta": lambda : tum_apiler(),
         "-a": lambda : print(2)
     }
     if len(sys.argv) == 1:
