@@ -1,0 +1,16 @@
+{
+  "ozellestirme": {
+    "ayrac_sembol": "--",
+    "ayrac_uzunluk": 45,
+    "guncelleme_kontrol": "True"
+
+  },
+  "kaynakAPI": {
+    "kaynak_sayisi": 4,
+    "k1": "https://ulvis.net/api.php?url=",
+    "k2": "kaynak_API_2",
+    "k3": "kaynak_API_3",
+    "k4": "kaynak_API_4"
+  }
+
+}
