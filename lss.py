@@ -4,6 +4,8 @@ import sys
 import requests
 import random
 from datetime import datetime
+import subprocess
+
 
 
 def getJSON(kategori,key=None):
@@ -17,7 +19,7 @@ def getJSON(kategori,key=None):
             quit()
         return donus
 
-versiyon = "1.0.0"
+versiyon = "lss_executable-v1.0.1-alpha"
 
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
@@ -39,15 +41,21 @@ yardim = rmav+ asembol*auzunluk + rbitir + f'''
     {rmav}lss{rbitir} www.google.com k1 : cfg.json dosyasındaki k1 API'sini seçer
     
     EK KOMUTLAR:
-    {rmav}lss{rbitir} {rkir}-h{rbitir}  : yardım sayfasını başlatır                      (help)
-    {rmav}lss{rbitir} {rkir}-v{rbitir}  : versiyon numarası sayfasını başlatır           (versiyon)
-    {rmav}lss{rbitir} {rkir}-uc{rbitir}  : güncelleme varmi kontrol eder                 (update-check)
-    {rmav}lss{rbitir} {rkir}-uc{rbitir}  : güncellemeyi otomatik olarak indirip kurar    (update-apply)
-    {rmav}lss{rbitir} {rkir}-g{rbitir}  : kısaltılan linkleri tarih damgası ile gösterir (geçmiş)
-    {rmav}lss{rbitir} {rkir}-gs{rbitir} : kayıtların tutulduğu geçmişi siler             (geçmiş-sil)
-    {rmav}lss{rbitir} {rkir}-pe{rbitir} : programı otomatik olarak pathe ekler           (path-ekle)
-    {rmav}lss{rbitir} {rkir}-ta{rbitir} : tüm API'leri listeler                          (tüm-apiler)
-    {rmav}lss{rbitir} {rkir}-a{rbitir}  : API ve özelleştirmeler için ayarları başlatır  (ayarlar)
+    {rmav}lss{rbitir} {rkir}-h{rbitir}    : yardım sayfasını başlatır                      (help)
+    
+    {rmav}lss{rbitir} {rkir}-v{rbitir}    : versiyon numarası sayfasını başlatır           (versiyon)
+    {rmav}lss{rbitir} {rkir}-uc{rbitir}   : güncelleme varmi kontrol eder                  (update-check)
+    {rmav}lss{rbitir} {rkir}-ua{rbitir}   : güncellemeyi otomatik olarak indirip kurar     (update-apply)
+    
+    {rmav}lss{rbitir} {rkir}-g{rbitir}    : kısaltılan linkleri tarih damgası ile gösterir (geçmiş)
+    {rmav}lss{rbitir} {rkir}-gs{rbitir}   : kayıtların tutulduğu geçmişi siler             (geçmiş-sil)
+    
+    {rmav}lss{rbitir} {rkir}-pe{rbitir}   : programı otomatik olarak pathe ekler           (path-ekle)
+    
+    {rmav}lss{rbitir} {rkir}-ta{rbitir}   : tüm API'leri listeler                          (tüm-apiler)
+    
+    {rmav}lss{rbitir} {rkir}-a*{rbitir}   : API ve özelleştirmeler için ayarları başlatır  (ayarlar)
+    {rmav}lss{rbitir} {rkir}-ah{rbitir}   : ayarlar komutunun yardım sayfasını başlatır    (ayarlar-help)
     
     https://github.com/\033[1;36mwhy20w18\033[0m
 '''+rmav+ asembol*auzunluk + rbitir
@@ -94,20 +102,30 @@ def tum_apiler():
 def iversiyon():
     print("lss versiyon : ",rmav,versiyon,rbitir,sep='')
 def guncellemeVarMi():
+    #-uc argumani
     r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
     guncel_release = r.json()
     guncel_versiyon = guncel_release["name"]
-    versiyon_no = str(guncel_versiyon).strip()[16:21]
 
-    if versiyon != versiyon_no:
+    indirme_link = guncel_release["assets"][0]["browser_download_url"]
+    boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
+
+
+    if versiyon != str(guncel_versiyon).strip():
         print(ryes,"GUNCELLEME VAR !",rbitir+"\n"
                                              "yeni versiyon: ",
               rmav,str(guncel_versiyon).strip()[16:21],rbitir
               ,sep='')
 
+    elif sys.argv[1] == "-ua":
+        guncellemeyiKur(indirme_link,boyut)
+
     else:
         print(ryes+"lls EN GUNCEL VERSIYONDA !",rbitir+
               "MEVCUT VERSIYON :" + guncel_versiyon,sep='\n')
+
+def guncellemeyiKur(indirme_link,boyut):
+    print(2)
 
 
 def main():
@@ -115,11 +133,13 @@ def main():
         "-h": lambda : print(yardim),
         "-v": iversiyon,
         "-uc": lambda : guncellemeVarMi(),
+        "-ua": guncellemeyiKur,
         "-g": gecmis_oku,
         "-gs": gecmis_sil,
         "-pe": lambda : print(2),
         "-ta": tum_apiler,
-        "-a": lambda : print(2)
+        "-a*": lambda : print("* işareti komutun devamının ek parametreler açtığını belirtmek için kullanılmıştır."),
+        "-ah": lambda : print("AYARLAR YARDIM SAYFASI")
     }
     if len(sys.argv) == 1:
         print(rkir,'hiç parametre girmediniz yardım için "-h"',rbitir,sep='')
