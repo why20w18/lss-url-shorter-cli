@@ -5,10 +5,16 @@ import requests
 import random
 from datetime import datetime
 
+
 def getJSON(kategori,key=None):
     with open(".config.json") as cfg:
         veri = json.load(cfg)
-        donus = veri[kategori] if key == None else veri[kategori][key]
+        try:
+            donus = veri[kategori] if key == None else veri[kategori][key]
+        except KeyError as hata:
+            print(rkir+'GECERSIZ PARAMETRELER GIRDINIZ !',rbitir)
+            print("HATA : ",hata)
+            quit()
         return donus
 
 rkir = "\033[1;31m"
@@ -84,7 +90,7 @@ def tum_apiler():
 def main():
     ekKomutlar = {
         "-h": lambda : print(yardim),
-        "-v": lambda : print(rmav+'lss versiyon 1.0.0'+rbitir,"github.com/why20w18",sep='\n'),
+        "-v": lambda : print(rmav+'lss versiyon 1.0.1'+rbitir,"github.com/why20w18",sep='\n'),
         "-u": lambda : print('updt'),
         "-g": gecmis_oku,
         "-gs": gecmis_sil,
@@ -102,15 +108,17 @@ def main():
             ekKomutlar[sys.argv[1]]()
         else:
             url = sys.argv[1]
-            if len(sys.argv) == 3:
-               print(ryes,"BASARILI[+]\n",rbitir,
-                     rmav,istekYapAPI(url,sys.argv[2])
-                     ,rbitir,sep='')
-            else:
-                print(ryes, "BASARILI[+]\n", rbitir,
-                      rmav,istekYapAPI(url)
-                      , rbitir,sep='')
-
+            try:
+                if len(sys.argv) == 3:
+                   print(ryes,"BASARILI[+]\n",rbitir,
+                         rmav,istekYapAPI(url,sys.argv[2])
+                         ,rbitir,sep='')
+                else:
+                    print(ryes, "BASARILI[+]\n", rbitir,
+                          rmav,istekYapAPI(url)
+                          , rbitir,sep='')
+            except (requests.exceptions.InvalidSchema,requests.exceptions.InvalidURL,) as hata:
+                print(rmav,'HATA : ',rbitir,rkir,hata,rbitir,'\nyanlış yada eksik URL girdiniz',sep='')
 
 if sys.version_info.major == 3 and sys.version_info.minor >= 3:
     main()
