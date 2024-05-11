@@ -57,8 +57,29 @@ yardim = rmav+ asembol*auzunluk + rbitir + f'''
     
     {rmav}lss{rbitir} {rkir}-ta{rbitir}      : tüm API'leri listeler                          (tüm-apiler)
     
-    {rmav}lss{rbitir} {rkir}-a*{rbitir}      : API ve özelleştirmeler için ayarları başlatır  (ayarlar)
-    {rmav}lss{rbitir} {rkir}-ah{rbitir}      : ayarlar komutunun yardım sayfasını başlatır    (ayarlar-help)
+    {rmav}lss{rbitir} {rkir}-a help{rbitir}  : ayarlar komutunun yardım sayfasını başlatır    (ayarlar-help)
+    
+    https://github.com/\033[1;36mwhy20w18\033[0m
+'''+rmav+ asembol*auzunluk + rbitir
+
+yardim_ayarlar = rmav+ asembol*auzunluk + rbitir + f'''
+{ryes}AYARLAR YARDIM SAYFASI{rbitir} 
+    
+     MEVCUT VERSIYON: {rmav}{versiyon}{rbitir}
+    
+      TEMEL KULLANIM:
+    {rmav}lss{rbitir} {rkir}-a{rbitir} {rmav}IKINCIL_ARGUMAN{rbitir} 
+    
+      IKINCIL ARGUMANLAR:
+    {rmav}lss{rbitir} {rkir}-a{rbitir} help         : ayarlar yardım sayfasını başlatır
+    
+    {rmav}lss{rbitir} {rkir}-a{rbitir} config       : config dosyasını düzenlemeyi başlatır (nano yüklü olmalıdır)
+        {rmav}lss{rbitir} {rkir}-ac{rbitir} ayrac   : config ayraç değişimi özelleştirmesi
+        {rmav}lss{rbitir} {rkir}-ac{rbitir} asayi   : config ayraç uzunluğu özelleştirmesi        
+        
+    {rmav}lss{rbitir} {rkir}-a{rbitir} os           : işletim sistemi bilgilerini getirir 
+    
+    {rmav}lss{rbitir} {rkir}-a{rbitir} gecmis       : geçmiş dosyasını düzenlemeyi başlatır (nano yüklü olmalıdır)
     
     https://github.com/\033[1;36mwhy20w18\033[0m
 '''+rmav+ asembol*auzunluk + rbitir
@@ -107,27 +128,41 @@ def iversiyon():
 
 def guncellemeVarMi():
     #-uc argumani
-    r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
-    guncel_release = r.json()
-    guncel_versiyon = guncel_release["name"]
+    cfg_guncelleme = bool(getJSON("ozellestirme", "guncelleme_kontrol"))
 
-    #print(sys.argv)
-
-    indirme_link = guncel_release["assets"][0]["browser_download_url"]
-    boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
-
-    guncelDegil = True
+    if cfg_guncelleme:
+        r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
+        guncel_release = r.json()
+        guncel_versiyon = guncel_release["name"]
+        indirme_link = guncel_release["assets"][0]["browser_download_url"]
+        boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
+        guncelDegil = True
+    else:
+        print(rkir,'GUNCELLEME AYARLARINI KAPATTINIZ TEKRAR ACMAK ICIN ./lss -a help',rbitir,sep='')
+        quit()
 
     try:
-        if sys.argv[2] == "kur":
+        if sys.argv[2] == "kur" and cfg_guncelleme:
+            klasor = os.listdir(".")
+            print('gerekli dosyalar kontrol ediliyor ...')
+            if ".gecmis.txt" in klasor:
+                print('gerekli dosyalar kontrol edildi eksik yok')
+            else:
+                os.system("touch .gecmis.txt")
+                print('eksik dosyalar olusturuldu')
+
             print("lss executable indirmesi başladı ...")
             os.system("mv lss lss_eski")
+
             print(rkir,"toplam indirme boyutu : ",boyut, "MB", rbitir+"\n",sep='')
             subprocess.run(["wget", indirme_link])
+
             print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi", rbitir,sep='\n')
             os.chmod("lss",0o755)
+
             print(rmav,guncel_versiyon, "başlatılıyor !\n\n\n\n\nGIRILEN KOMUT:./lss -h\n",rbitir)
             os.system("./lss -h")
+
             print(rkir,"\n\n\nGUNCEL VERSIYONU KULLANMAK ICIN './lss -h' YAZIN",rbitir,sep='')
             guncelDegil = False
 
@@ -135,7 +170,7 @@ def guncellemeVarMi():
         pass
 
     finally:
-        if guncelDegil and versiyon != str(guncel_versiyon).strip():(
+        if cfg_guncelleme and guncelDegil and versiyon != str(guncel_versiyon).strip():(
             print(ryes,"GUNCELLEME VAR !",rbitir
                   +"\n"+"yeni versiyon: ",
                   rmav,str(guncel_versiyon).strip()[:]
@@ -145,6 +180,8 @@ def guncellemeVarMi():
             print(ryes+"lls EN GUNCEL VERSIYONDA !",rbitir+
               "MEVCUT VERSIYON :" + guncel_versiyon,sep='\n')
 
+def path_ekle():
+    print('pathe eklendi')
 
 def main():
     ekKomutlar = {
@@ -153,16 +190,27 @@ def main():
         "-uc": lambda : guncellemeVarMi(),
         "-g": gecmis_oku,
         "-gs": gecmis_sil,
-        "-pe": lambda : print(2),
+        "-pe": lambda : path_ekle(),
         "-ta": tum_apiler,
-        "-a*": lambda : print("* işareti komutun devamının ek parametreler açtığını belirtmek için kullanılmıştır."),
+        "-a": lambda : print(22),
+        "-ac": lambda : print(23),
         "-ah": lambda : print("AYARLAR YARDIM SAYFASI")
+    }
+    ayarKomutlar = {
+        "help" : lambda : print("help"),
+        "os" : lambda  : print("os"),
+        "config" : lambda : print("config başlat"),
+        "gecmis" : lambda : print("gecmis duzenle"),
+        "ayrac" : lambda : print("ayrac sembol"),
+        "uzunluk": lambda : print("ayrac uzunluk")
     }
     if len(sys.argv) == 1:
         print(rkir,'hiç parametre girmediniz yardım için "-h"',rbitir,sep='')
     elif len(sys.argv) > 3:
         print(rkir,'fazladan parametre girdiniz yardım için "-h"',rbitir,sep='')
-
+    elif len(sys.argv) == 2:
+        if sys.argv[1] in "-a -ac" and sys.argv[2] in ayarKomutlar:
+            ayarKomutlar[sys.argv[2]]()
     else:
         if sys.argv[1] in ekKomutlar:
             ekKomutlar[sys.argv[1]]()
@@ -170,11 +218,11 @@ def main():
             url = sys.argv[1]
             try:
                 if len(sys.argv) == 3:
-                   print(ryes,"BASARILI[+]\n",rbitir,
+                   print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes,"BASARILI[+]\n",rbitir,
                          rmav,istekYapAPI(url,sys.argv[2])
                          ,rbitir,sep='')
                 else:
-                    print(ryes, "BASARILI[+]\n", rbitir,
+                    print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes, "BASARILI[+]\n", rbitir,
                           rmav,istekYapAPI(url)
                           , rbitir,sep='')
             except (requests.exceptions.InvalidSchema,requests.exceptions.InvalidURL,) as hata:
