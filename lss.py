@@ -8,9 +8,8 @@ from datetime import datetime
 import subprocess
 
 
-
 def getJSON(kategori,key=None):
-    with open(".config.json") as cfg:
+    with open(os.getcwd()+"/.config.json") as cfg:
         veri = json.load(cfg)
         try:
             donus = veri[kategori] if key == None else veri[kategori][key]
@@ -27,7 +26,7 @@ def setJSON(kategori, key, yeniKey):
         cfg.seek(0)
         json.dump(veri, cfg,indent=4)
 
-versiyon = "lss_executable-v1.0.1-alpha"
+versiyon = "lss_executable-v1.1.0-alpha"
 
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
@@ -88,7 +87,7 @@ yardim_ayarlar = rmav+ asembol*auzunluk + rbitir + f'''
         
     {rmav}lss{rbitir} {rkir}-a{rbitir} os           : işletim sistemi bilgilerini getirir 
     
-    {rmav}lss{rbitir} {rkir}-a{rbitir} gecmis       : geçmiş dosyasını düzenlemeyi başlatır (nano yüklü olmalıdır)
+    {rmav}lss{rbitir} {rkir}-a{rbitir} gecmis       : geçmiş dosyasını düzenlemeyi başlatır    (nano yüklü olmalıdır)
     
     https://github.com/\033[1;36mwhy20w18\033[0m
 '''+rmav+ asembol*auzunluk + rbitir
@@ -202,6 +201,7 @@ def path_ekle():
 
     kabuk = "~/." + kabuk + "rc"
     eklenecek_dizin = os.getcwd()
+    os.chmod("lss.sh",0o755)
     os.chmod(".pe.sh",0o755)
 
     print(ryes,"\bPATH ICIN IZINLER VERILDI",rbitir)
@@ -225,7 +225,7 @@ def ayarlar_cfg_baslat(cfgMi):
     ls = os.listdir()
     for s in ls:
         if cfgMi:
-            subprocess.run(["nano","~../.config.json"])
+            subprocess.run(["nano",".config.json"])
             break
         else:
             subprocess.run(["nano", ".gecmis.txt"])
