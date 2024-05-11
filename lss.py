@@ -1,4 +1,3 @@
-import datetime
 import json
 import os
 import sys
@@ -7,9 +6,10 @@ import random
 from datetime import datetime
 import subprocess
 
+versiyon = "lss_executable-v1.1.4-alpha"
 
 def getJSON(kategori,key=None):
-    with open(os.getcwd()+"/.config.json") as cfg:
+    with open(os.getcwd()+"/config.json") as cfg:
         veri = json.load(cfg)
         try:
             donus = veri[kategori] if key == None else veri[kategori][key]
@@ -20,13 +20,13 @@ def getJSON(kategori,key=None):
         return donus
 
 def setJSON(kategori, key, yeniKey):
-    with open(".config.json", "r+") as cfg:
+    with open("config.json", "r+") as cfg:
         veri = json.load(cfg)
         veri[kategori][key] = yeniKey
         cfg.seek(0)
         json.dump(veri, cfg,indent=4)
 
-versiyon = "lss_executable-v1.1.3-alpha"
+
 
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
@@ -80,7 +80,7 @@ yardim_ayarlar = rmav+ asembol*auzunluk + rbitir + f'''
     {rmav}lss{rbitir} {rkir}-a{rbitir} help         : ayarlar yardım sayfasını başlatır
     
     {rmav}lss{rbitir} {rkir}-a{rbitir} ackapa       : otomatik güncelleştirmeleri açıp kapatır (./lss -uc DEVREDIŞI KALIR) 
-    {rmav}lss{rbitir} {rkir}-a{rbitir} config       : config dosyasını düzenlemeyi başlatır    (nano yüklü olmalıdır)
+    {rmav}lss{rbitir} {rkir}-a{rbitir} cfg          : config dosyasını düzenlemeyi başlatır    (nano yüklü olmalıdır)
     {rmav}lss{rbitir} {rkir}-a{rbitir} sembol       : config ayraç değişimi özelleştirmesi
     {rmav}lss{rbitir} {rkir}-a{rbitir} uzunluk      : config ayraç uzunluğu özelleştirmesi
         
@@ -113,16 +113,16 @@ def istekYapAPI(url,apiSec=randomAPI()):
     return sonuc
 
 def gecmis_kayit(url,shortURL):
-    with open('.gecmis.txt','a') as gecmis:
+    with open('gecmis.txt','a') as gecmis:
         gecmis.write(url+"--->"+shortURL+"--->"+str(datetime.now())+"\n")
 def gecmis_oku():
-    dosya = open('.gecmis.txt','r')
+    dosya = open('gecmis.txt','r')
     gecmis = dosya.read()
     print(gecmis)
     dosya.close()
 
 def gecmis_sil():
-    dosya = open('.gecmis.txt','w')
+    dosya = open('gecmis.txt','w')
     print('SON SILINME TARIHI:',str(datetime.now()),file=dosya)
     dosya.close()
     print(ryes+"GECMIS KAYITLARI SILINDI[+]"+rbitir)
@@ -140,15 +140,15 @@ def iversiyon():
 
 def guncellemeVarMi():
     #-uc argumani
-    cfg_guncelleme = bool(getJSON("ozellestirme", "guncelleme_kontrol"))
+    cfg_guncelleme = str(getJSON("ozellestirme", "guncelleme_kontrol"))
+    print(bool(cfg_guncelleme))
     try:
 
         if cfg_guncelleme:
             r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
             guncel_release = r.json()
             guncel_versiyon = guncel_release["name"]
-            indirme_link = guncel_release["zipball_url"]
-            #boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
+            boyut = round(int(guncel_release["assets"][2]["size"]) / (2**20),2) #mb
             tag_adi = guncel_release["tag_name"]
             dizin_adi = guncel_release["name"]
             guncelDegil = True
@@ -158,29 +158,31 @@ def guncellemeVarMi():
 
         try:
             if sys.argv[2] == "kur" and cfg_guncelleme:
-                os.mkdir("lss_yeni_versiyon")
-                os.chdir("lss_yeni_versiyon")
+                os.mkdir(str(dizin_adi))
+                os.chdir(str(dizin_adi))
 
-                print(rkir,"toplam indirme boyutu : ",boyut, "MB", rbitir+"\n",sep='')
-                subprocess.run(["wget", indirme_link])
+                print(rkir,"INDIRME BASLADI"+rbitir+"\n",sep='')
 
-                print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi[+]\ncikartma islemi yapiliyor...", rbitir,sep='\n')
-                subprocess.run(["unzip",tag_adi+".zip"])
-                print(ryes+"zip cikartma islemi basarili [+]"+rbitir)
-                os.chdir(dizin_adi)
+                for s in range(0,3):
+                    os.system("clear")
+                    subprocess.run(["wget", guncel_release["assets"][s]["browser_download_url"]])
+                    print(ryes+str(s+1)+"/3 TAMAMLANDI",rbitir+rmav+"<->why20w18/lss-url-shorter-cli/releases/latest",rbitir)
+                    input("ENTER TUSUNA BASIN")
 
-                os.system("mv default.config.json .config.json")
-                os.system("mv default.gecmis.txt .gecmis.text")
+                print(rbitir,ryes+"\n\nwhy20w18","\bINDIRME TAMAMLANDI[+]\n", rbitir,sep='\n')
 
                 os.chmod("lss",0o755)
-                print(ryes+"yetkilendirme basarili[+]"+rbitir)
-                print(rmav+guncel_versiyon+" başlatılıyor !\n\n\n\n"+rbitir)
+
+                print(ryes+"YETKILENDIRME TAMAMLANDI [+]"+rbitir)
+                print(rmav+guncel_versiyon+" BASLATILIYOR !\n\n\n\n"+rbitir)
+
                 os.system("./lss -v && ./lss -uc")
                 print(ryes,"GUNCELLEME BASARIYLA TAMAMLANDI [+]",rbitir,sep='')
+
                 guncelDegil = False
 
         except IndexError as hata:
-            pass
+            print(hata)
 
         finally:
             if cfg_guncelleme and guncelDegil and versiyon != str(guncel_versiyon).strip():(
@@ -200,7 +202,9 @@ def path_ekle():
     user = subprocess.check_output("whoami",shell=True).decode().strip()
 
     kabuk = "~/." + kabuk + "rc"
-    eklenecek_dizin = os.getcwd()
+    os.mkdir("/opt/lss_execut")
+    eklenecek_dizin = "/opt/lss_execut"
+
     os.chmod("lss.sh",0o755)
     os.chmod(".pe.sh",0o755)
 
@@ -225,10 +229,10 @@ def ayarlar_cfg_baslat(cfgMi):
     ls = os.listdir()
     for s in ls:
         if cfgMi:
-            subprocess.run(["nano",".config.json"])
+            subprocess.run(["nano","config.json"])
             break
         else:
-            subprocess.run(["nano", ".gecmis.txt"])
+            subprocess.run(["nano", "gecmis.txt"])
             break
     else:
         print(rkir,'\bdizinde aranan dosya bulunmuyor !',rbitir)
@@ -259,7 +263,7 @@ def main():
     ayarKomutlar = {
         "help" : lambda : print(yardim_ayarlar),
         "os" : lambda  : print("os"),
-        "config" : lambda : ayarlar_cfg_baslat(True),
+        "cfg" : lambda : ayarlar_cfg_baslat(True),
         "gecmis" : lambda : ayarlar_cfg_baslat(False),
         "sembol" : lambda : ayarlar_ozellestirme(True),
         "uzunluk": lambda : ayarlar_ozellestirme(False),
@@ -267,11 +271,16 @@ def main():
     }
     if len(sys.argv) == 1:
         print(rkir,'hiç parametre girmediniz yardım için "-h"',rbitir,sep='')
-    elif len(sys.argv) > 3:
-        print(rkir,'fazladan parametre girdiniz yardım için "-h"',rbitir,sep='')
+
     elif len(sys.argv) == 3:
         if sys.argv[1] in "-a" and sys.argv[2] in ayarKomutlar:
             ayarKomutlar[sys.argv[2]]()
+        elif sys.argv[1] in "-uc" and sys.argv[2] == "kur":
+            guncellemeVarMi()
+
+    elif len(sys.argv) > 3:
+        print(rkir,'fazladan parametre girdiniz yardım için "-h"',rbitir,sep='')
+
     else:
         if sys.argv[1] in ekKomutlar:
             ekKomutlar[sys.argv[1]]()
@@ -281,13 +290,15 @@ def main():
                 if len(sys.argv) == 3:
                    print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes,"BASARILI[+]\n",rbitir,
                          rmav,istekYapAPI(url,sys.argv[2])
-                         ,rbitir+rmav+ asembol*auzunluk + rbitir,sep='')
+                         ,rbitir+"\n"+rmav+ asembol*auzunluk + rbitir,sep='')
                 else:
                     print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes, "BASARILI[+]\n", rbitir,
                           rmav,istekYapAPI(url)
-                          , rbitir,rmav+ asembol*auzunluk + rbitir,sep='')
+                          ,rbitir,"\n"+rmav+ asembol*auzunluk + rbitir,sep='')
             except (requests.exceptions.InvalidSchema,requests.exceptions.InvalidURL,) as hata:
                 print(rmav,'HATA : ',rbitir,rkir,hata,rbitir,'\nyanlış yada eksik URL girdiniz',sep='')
+
+
 
 if sys.version_info.major == 3 and sys.version_info.minor >= 3:
     main()
