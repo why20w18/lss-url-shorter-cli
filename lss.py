@@ -26,7 +26,7 @@ def setJSON(kategori, key, yeniKey):
         cfg.seek(0)
         json.dump(veri, cfg,indent=4)
 
-versiyon = "lss_executable-v1.1.1-alpha"
+versiyon = "lss_executable-v1.1.2-alpha"
 
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
@@ -168,6 +168,10 @@ def guncellemeVarMi():
                 subprocess.run(["unzip",tag_adi+".zip"])
                 print(ryes+"zip cikartma islemi basarili [+]"+rbitir)
                 os.chdir(dizin_adi)
+
+                os.system("mv default.config.json .config.json")
+                os.system("mv default.gecmis.txt .gecmis.text")
+
                 os.chmod("lss",0o755)
                 print(ryes+"yetkilendirme basarili[+]"+rbitir)
                 print(rmav+guncel_versiyon+" başlatılıyor !\n\n\n\n"+rbitir)
