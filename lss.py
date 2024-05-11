@@ -6,21 +6,27 @@ import random
 from datetime import datetime
 import subprocess
 
-versiyon = "lss_executable-v1.1.4-alpha"
+versiyon = "lss_executable-v1.1.5-alpha"
+
+def gizleyici():
+    listdir = os.listdir()
+    for s in listdir:
+        if s in ["config.json", "gecmis.txt", "pe.sh"]:
+            os.system("mv " + s + " ." + s)
 
 def getJSON(kategori,key=None):
-    with open(os.getcwd()+"/config.json") as cfg:
+    with open(os.getcwd()+"/.config.json") as cfg:
         veri = json.load(cfg)
         try:
             donus = veri[kategori] if key == None else veri[kategori][key]
         except KeyError as hata:
             print(rkir+'GECERSIZ PARAMETRELER GIRDINIZ !',rbitir)
             print("HATA : ",hata)
-            #quit()
+            quit()
         return donus
 
 def setJSON(kategori, key, yeniKey):
-    with open("config.json", "r+") as cfg:
+    with open(".config.json", "r+") as cfg:
         veri = json.load(cfg)
         veri[kategori][key] = yeniKey
         cfg.seek(0)
@@ -58,9 +64,7 @@ yardim = rmav+ asembol*auzunluk + rbitir + f'''
     
     {rmav}lss{rbitir} {rkir}-g{rbitir}       : kısaltılan linkleri tarih damgası ile gösterir (geçmiş)
     {rmav}lss{rbitir} {rkir}-gs{rbitir}      : kayıtların tutulduğu geçmişi siler             (geçmiş-sil)
-    
-    {rmav}lss{rbitir} {rkir}-pe{rbitir}      : programı otomatik olarak pathe ekler           (path-ekle)
-    
+        
     {rmav}lss{rbitir} {rkir}-ta{rbitir}      : tüm API'leri listeler                          (tüm-apiler)
     
     {rmav}lss{rbitir} {rkir}-a help{rbitir}  : ayarlar komutunun yardım sayfasını başlatır    (ayarlar-help)
@@ -113,16 +117,16 @@ def istekYapAPI(url,apiSec=randomAPI()):
     return sonuc
 
 def gecmis_kayit(url,shortURL):
-    with open('gecmis.txt','a') as gecmis:
+    with open('.gecmis.txt','a') as gecmis:
         gecmis.write(url+"--->"+shortURL+"--->"+str(datetime.now())+"\n")
 def gecmis_oku():
-    dosya = open('gecmis.txt','r')
+    dosya = open('.gecmis.txt','r')
     gecmis = dosya.read()
     print(gecmis)
     dosya.close()
 
 def gecmis_sil():
-    dosya = open('gecmis.txt','w')
+    dosya = open('.gecmis.txt','w')
     print('SON SILINME TARIHI:',str(datetime.now()),file=dosya)
     dosya.close()
     print(ryes+"GECMIS KAYITLARI SILINDI[+]"+rbitir)
@@ -138,18 +142,17 @@ def tum_apiler():
 def iversiyon():
     print("lss versiyon : ",rmav,versiyon,rbitir,sep='')
 
+
+
 def guncellemeVarMi():
     #-uc argumani
     cfg_guncelleme = str(getJSON("ozellestirme", "guncelleme_kontrol"))
-    print(bool(cfg_guncelleme))
     try:
 
         if cfg_guncelleme:
             r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
             guncel_release = r.json()
             guncel_versiyon = guncel_release["name"]
-            boyut = round(int(guncel_release["assets"][2]["size"]) / (2**20),2) #mb
-            tag_adi = guncel_release["tag_name"]
             dizin_adi = guncel_release["name"]
             guncelDegil = True
         else:
@@ -158,32 +161,43 @@ def guncellemeVarMi():
 
         try:
             if sys.argv[2] == "kur" and cfg_guncelleme:
+                user = subprocess.check_output("whoami", shell=True).decode().strip()
+                os.chdir("/home/"+user)
                 os.mkdir(str(dizin_adi))
                 os.chdir(str(dizin_adi))
 
                 print(rkir,"INDIRME BASLADI"+rbitir+"\n",sep='')
-
-                for s in range(0,3):
+                print(rkir+"INDIRME KONUMU: /home/"+user+"/"+dizin_adi,rbitir)
+                topindirme = len(guncel_release["assets"])
+                for s in range(0,topindirme):
                     os.system("clear")
                     subprocess.run(["wget", guncel_release["assets"][s]["browser_download_url"]])
-                    print(ryes+str(s+1)+"/3 TAMAMLANDI",rbitir+rmav+"<->why20w18/lss-url-shorter-cli/releases/latest",rbitir)
+                    print(ryes+str(s+1)+"/"+topindirme+" TAMAMLANDI",rbitir+rmav+"<->why20w18/lss-url-shorter-cli/releases/latest",rbitir)
                     input("ENTER TUSUNA BASIN")
 
+                os.system("clear")
                 print(rbitir,ryes+"\n\nwhy20w18","\bINDIRME TAMAMLANDI[+]\n", rbitir,sep='\n')
 
                 os.chmod("lss",0o755)
 
                 print(ryes+"YETKILENDIRME TAMAMLANDI [+]"+rbitir)
-                print(rmav+guncel_versiyon+" BASLATILIYOR !\n\n\n\n"+rbitir)
 
-                os.system("./lss -v && ./lss -uc")
                 print(ryes,"GUNCELLEME BASARIYLA TAMAMLANDI [+]",rbitir,sep='')
+                print(rkir+"PATH EKLEME ISLEMI BASLADI"+rbitir)
+                path_ekle(dizin_adi)
+                print(ryes+"PATH EKLEME ISLEMI TAMAMLANDI [+]"+rbitir)
+
+                os.system("mv config.json .config.json")
+                os.system("mv gecmis.txt .gecmis.txt")
+
+                os.system("clear")
+                print(rmav + guncel_versiyon + " BASLATILIYOR !\n\n\n\n" + rbitir)
+                os.system("./lss -v && ./lss -uc")
 
                 guncelDegil = False
 
         except IndexError as hata:
-            print(hata)
-
+            pass
         finally:
             if cfg_guncelleme and guncelDegil and versiyon != str(guncel_versiyon).strip():(
                 print(ryes,"GUNCELLEME VAR !",rbitir
@@ -197,22 +211,21 @@ def guncellemeVarMi():
     except requests.exceptions.ConnectionError:
         print(rmav,"\bINTERNET COK YAVAS - ISTEK ZAMAN ASIMINA UGRADI",rbitir)
 
-def path_ekle():
+def path_ekle(dizin_adi):
     kabuk = subprocess.check_output("echo $SHELL",shell=True).decode().strip()[5:]
     user = subprocess.check_output("whoami",shell=True).decode().strip()
 
     kabuk = "~/." + kabuk + "rc"
-    os.mkdir("/opt/lss_execut")
-    eklenecek_dizin = "/opt/lss_execut"
+    eklenecek_dizin = "/home/"+user+"/"+dizin_adi
 
-    os.chmod("lss.sh",0o755)
-    os.chmod(".pe.sh",0o755)
+    os.chmod("pe.sh",0o755)
 
     print(ryes,"\bPATH ICIN IZINLER VERILDI",rbitir)
-    os.system("./.pe.sh "+eklenecek_dizin+" "+kabuk)
+    os.system("./pe.sh "+eklenecek_dizin+" "+kabuk)
+
 
     print(ryes,"\b"+user +"adlı kullanıcının kullandığı "+kabuk+" adlı dizine lss eklenmiştir", rbitir)
-
+    os.system("mv pe.sh .pe.sh")
 def ackapa():
     durum = str(getJSON("ozellestirme","guncelleme_kontrol"))
     oto_guncel_acikMi =  durum.isspace()
@@ -229,10 +242,10 @@ def ayarlar_cfg_baslat(cfgMi):
     ls = os.listdir()
     for s in ls:
         if cfgMi:
-            subprocess.run(["nano","config.json"])
+            subprocess.run(["nano",".config.json"])
             break
         else:
-            subprocess.run(["nano", "gecmis.txt"])
+            subprocess.run(["nano", ".gecmis.txt"])
             break
     else:
         print(rkir,'\bdizinde aranan dosya bulunmuyor !',rbitir)
@@ -256,7 +269,6 @@ def main():
         "-uc": lambda : guncellemeVarMi(),
         "-g": gecmis_oku,
         "-gs": gecmis_sil,
-        "-pe": lambda : path_ekle(),
         "-ta": tum_apiler,
         "-a": lambda : print("ayarlar yardım sayfası için '-a help' girin")
     }
@@ -300,7 +312,9 @@ def main():
 
 
 
+
 if sys.version_info.major == 3 and sys.version_info.minor >= 3:
+    gizleyici()
     main()
 else:
     print("python versiyonunuz:",sys.version_info,""
