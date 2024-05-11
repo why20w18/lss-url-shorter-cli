@@ -1,0 +1,35 @@
+--2024-05-11 00:56:03--  https://github.com/why20w18/lss-url-shorter-cli/releases/download/alpha/lss
+Loaded CA certificate '/etc/ssl/certs/ca-certificates.crt'
+Resolving github.com (github.com)... 140.82.121.3
+Connecting to github.com (github.com)|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: https://objects.githubusercontent.com/github-production-release-asset-2e65be/798903423/707838f5-fbfc-448d-813b-db0d3c4d9e7f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240510T221814Z&X-Amz-Expires=300&X-Amz-Signature=05ebd1bd7ac5909c0228e3872070799fda7982986893d568faf38e524112f205&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=798903423&response-content-disposition=attachment%3B%20filename%3Dlss&response-content-type=application%2Foctet-stream [following]
+--2024-05-11 01:18:14--  https://objects.githubusercontent.com/github-production-release-asset-2e65be/798903423/707838f5-fbfc-448d-813b-db0d3c4d9e7f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20240510%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240510T221814Z&X-Amz-Expires=300&X-Amz-Signature=05ebd1bd7ac5909c0228e3872070799fda7982986893d568faf38e524112f205&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=798903423&response-content-disposition=attachment%3B%20filename%3Dlss&response-content-type=application%2Foctet-stream
+Resolving objects.githubusercontent.com (objects.githubusercontent.com)... 185.199.109.133, 185.199.111.133, 185.199.110.133, ...
+Connecting to objects.githubusercontent.com (objects.githubusercontent.com)|185.199.109.133|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 10510536 (10M) [application/octet-stream]
+Saving to: ‘lss.1’
+
+     0K .......... .......... .......... .......... ..........  0%  198K 52s
+    50K .......... .......... .......... .......... ..........  0%  601K 34s
+   100K .......... .......... .......... .......... ..........  1%  477K 30s
+   150K .......... .......... .......... .......... ..........  1%  550K 27s
+   200K .......... .......... .......... .......... ..........  2%  571K 25s
+   250K .......... .......... .......... .......... ..........  2%  350K 25s
+   300K .......... .......... .......... .......... ..........  3%  317K 26s
+   350K .......... .......... .......... .......... ..........  3%  370K 26s
+   400K .......... .......... .......... .......... ..........  4%  318K 26s
+   450K .......... .......... .......... .......... ..........  4% 99.3K 34s
+   500K .......... .......... .......... .......... ..........  5% 78.8K 42s
+   550K .......... .......... .......... .......... ..........  5% 65.4K 50s
+   600K .......... .......... .......... .......... ..........  6% 50.8K 61s
+   650K .......... .......... .......... .......... ..........  6% 60.8K 67s
+   700K .......... .......... .......... .......... ..........  7% 44.6K 77s
+   750K .......... .......... .......... .......... ..........  7% 54.2K 82s
+   800K .......... .......... .......... .......... ..........  8% 78.7K 84s
+   850K .......... .......... .......... .......... ..........  8%  113K 84s
+   900K .......... .......... .......... .......... ..........  9%  101K 84s
+   950K .......... .......... .......... .......... ..........  9% 81.5K 85s
+  1000K .......... .......... .......... .......... .......... 10% 93.0K 85s
+  1050K .......... .......... .......... .....

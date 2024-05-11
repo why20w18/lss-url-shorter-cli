@@ -17,8 +17,15 @@ def getJSON(kategori,key=None):
         except KeyError as hata:
             print(rkir+'GECERSIZ PARAMETRELER GIRDINIZ !',rbitir)
             print("HATA : ",hata)
-            quit()
+            #quit()
         return donus
+
+def setJSON(kategori, key, yeniKey):
+    with open(".config.json", "r+") as cfg:
+        veri = json.load(cfg)
+        veri[kategori][key] = yeniKey
+        cfg.seek(0)
+        json.dump(veri, cfg,indent=4)
 
 versiyon = "lss_executable-v1.0.1-alpha"
 
@@ -73,9 +80,11 @@ yardim_ayarlar = rmav+ asembol*auzunluk + rbitir + f'''
       IKINCIL ARGUMANLAR:
     {rmav}lss{rbitir} {rkir}-a{rbitir} help         : ayarlar yardım sayfasını başlatır
     
-    {rmav}lss{rbitir} {rkir}-a{rbitir} config       : config dosyasını düzenlemeyi başlatır (nano yüklü olmalıdır)
-        {rmav}lss{rbitir} {rkir}-ac{rbitir} ayrac   : config ayraç değişimi özelleştirmesi
-        {rmav}lss{rbitir} {rkir}-ac{rbitir} asayi   : config ayraç uzunluğu özelleştirmesi        
+    {rmav}lss{rbitir} {rkir}-a{rbitir} ackapa       : otomatik güncelleştirmeleri açıp kapatır (./lss -uc DEVREDIŞI KALIR) 
+    {rmav}lss{rbitir} {rkir}-a{rbitir} config       : config dosyasını düzenlemeyi başlatır    (nano yüklü olmalıdır)
+    {rmav}lss{rbitir} {rkir}-a{rbitir} sembol       : config ayraç değişimi özelleştirmesi
+    {rmav}lss{rbitir} {rkir}-a{rbitir} uzunluk      : config ayraç uzunluğu özelleştirmesi
+        
         
     {rmav}lss{rbitir} {rkir}-a{rbitir} os           : işletim sistemi bilgilerini getirir 
     
@@ -93,8 +102,12 @@ def randomAPI():
 def istekYapAPI(url,apiSec=randomAPI()):
     temizURL = "https://"+url+"/"
     ##python3 lss.py www.google.com k1 HATA STRING CEVIR
-    API = getJSON("kaynakAPI",apiSec)
-    r = requests.get(str(API)+temizURL)
+    try:
+        API = getJSON("kaynakAPI",apiSec)
+        r = requests.get(str(API)+temizURL)
+    except requests.exceptions.ConnectionError:
+        print(rmav,"\bINTERNET COK YAVAS - ISTEK ZAMAN ASIMINA UGRADI",rbitir)
+        quit()
 
     sonuc = r.text if r.status_code == 200 else "hata kodu:"+str(r.status_code)
     gecmis_kayit(temizURL,sonuc)
@@ -129,59 +142,98 @@ def iversiyon():
 def guncellemeVarMi():
     #-uc argumani
     cfg_guncelleme = bool(getJSON("ozellestirme", "guncelleme_kontrol"))
-
-    if cfg_guncelleme:
-        r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
-        guncel_release = r.json()
-        guncel_versiyon = guncel_release["name"]
-        indirme_link = guncel_release["assets"][0]["browser_download_url"]
-        boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
-        guncelDegil = True
-    else:
-        print(rkir,'GUNCELLEME AYARLARINI KAPATTINIZ TEKRAR ACMAK ICIN ./lss -a help',rbitir,sep='')
-        quit()
-
     try:
-        if sys.argv[2] == "kur" and cfg_guncelleme:
-            klasor = os.listdir(".")
-            print('gerekli dosyalar kontrol ediliyor ...')
-            if ".gecmis.txt" in klasor:
-                print('gerekli dosyalar kontrol edildi eksik yok')
-            else:
-                os.system("touch .gecmis.txt")
-                print('eksik dosyalar olusturuldu')
 
-            print("lss executable indirmesi başladı ...")
-            os.system("mv lss lss_eski")
-
-            print(rkir,"toplam indirme boyutu : ",boyut, "MB", rbitir+"\n",sep='')
-            subprocess.run(["wget", indirme_link])
-
-            print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi", rbitir,sep='\n')
-            os.chmod("lss",0o755)
-
-            print(rmav,guncel_versiyon, "başlatılıyor !\n\n\n\n\nGIRILEN KOMUT:./lss -h\n",rbitir)
-            os.system("./lss -h")
-
-            print(rkir,"\n\n\nGUNCEL VERSIYONU KULLANMAK ICIN './lss -h' YAZIN",rbitir,sep='')
-            guncelDegil = False
-
-    except IndexError as hata:
-        pass
-
-    finally:
-        if cfg_guncelleme and guncelDegil and versiyon != str(guncel_versiyon).strip():(
-            print(ryes,"GUNCELLEME VAR !",rbitir
-                  +"\n"+"yeni versiyon: ",
-                  rmav,str(guncel_versiyon).strip()[:]
-                  ,rbitir,sep=''))
-
+        if cfg_guncelleme:
+            r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
+            guncel_release = r.json()
+            guncel_versiyon = guncel_release["name"]
+            indirme_link = guncel_release["assets"][0]["browser_download_url"]
+            boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
+            guncelDegil = True
         else:
-            print(ryes+"lls EN GUNCEL VERSIYONDA !",rbitir+
-              "MEVCUT VERSIYON :" + guncel_versiyon,sep='\n')
+            print(rkir,'GUNCELLEME AYARLARINI KAPATTINIZ TEKRAR ACMAK ICIN ./lss -a help',rbitir,sep='')
+            quit()
+
+        try:
+            if sys.argv[2] == "kur" and cfg_guncelleme:
+                klasor = os.listdir(".")
+                print('gerekli dosyalar kontrol ediliyor ...')
+                if ".gecmis.txt" in klasor:
+                    print('gerekli dosyalar kontrol edildi eksik yok')
+                else:
+                    os.system("touch .gecmis.txt")
+                    print('eksik dosyalar olusturuldu')
+
+                print("lss executable indirmesi başladı ...")
+                os.system("mv lss lss_eski")
+
+                print(rkir,"toplam indirme boyutu : ",boyut, "MB", rbitir+"\n",sep='')
+                subprocess.run(["wget", indirme_link])
+
+                print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi", rbitir,sep='\n')
+                os.chmod("lss",0o755)
+
+                print(rmav,guncel_versiyon, "başlatılıyor !\n\n\n\n\nGIRILEN KOMUT:./lss -h\n",rbitir)
+                os.system("./lss -h")
+
+                print(rkir,"\n\n\nGUNCEL VERSIYONU KULLANMAK ICIN './lss -h' YAZIN",rbitir,sep='')
+                guncelDegil = False
+
+        except IndexError as hata:
+            pass
+
+        finally:
+            if cfg_guncelleme and guncelDegil and versiyon != str(guncel_versiyon).strip():(
+                print(ryes,"GUNCELLEME VAR !",rbitir
+                      +"\n"+"yeni versiyon: ",
+                      rmav,str(guncel_versiyon).strip()[:]
+                      ,rbitir,sep=''))
+
+            else:
+                print(ryes+"lls EN GUNCEL VERSIYONDA !",rbitir+
+                  "MEVCUT VERSIYON :" + guncel_versiyon,sep='\n')
+    except requests.exceptions.ConnectionError:
+        print(rmav,"\bINTERNET COK YAVAS - ISTEK ZAMAN ASIMINA UGRADI",rbitir)
 
 def path_ekle():
-    print('pathe eklendi')
+    betik = os.system("$SHELL")
+
+def ackapa():
+    durum = str(getJSON("ozellestirme","guncelleme_kontrol"))
+    oto_guncel_acikMi =  durum.isspace()
+    print(ryes,"\bILK DURUM : OTOMATIK GUNCELLEME ACIK : ",oto_guncel_acikMi,rbitir)
+    if oto_guncel_acikMi:
+        setJSON("ozellestirme","guncelleme_kontrol","")
+        print(rkir,"\bSON DURUM : OTOMATIK GUNCELLEME KAPATILDI './lss -uc' DEVREDISI KALDI !",rbitir)
+
+    else:
+        setJSON("ozellestirme", "guncelleme_kontrol", " ")
+        print("SON DURUM : OTOMATIK GUNCELLEME ACILDI")
+
+def ayarlar_cfg_baslat(cfgMi):
+    ls = os.listdir()
+    for s in ls:
+        if cfgMi:
+            subprocess.run(["nano",".config.json"])
+            break
+        else:
+            subprocess.run(["nano", ".gecmis.txt"])
+            break
+    else:
+        print(rkir,'\bdizinde aranan dosya bulunmuyor !',rbitir)
+
+def ayarlar_ozellestirme(ayracMi):
+    if ayracMi:
+        ayracSembol = getJSON("ozellestirme","ayrac_sembol")
+        istek_sembol = input("eski sembol:"+ayracSembol+"\n\byeni sembolü giriniz >")
+        setJSON("ozellestirme","ayrac_sembol",istek_sembol)
+        print(ryes,"\bAYRAC DEGISTIRILMISTIR !",rbitir)
+    else:
+        uzunluk = getJSON("ozellestirme", "ayrac_uzunluk")
+        yeniUzunluk = int(input("eski uzunluk:"+str(uzunluk)+"\n\byeni uzunluk giriniz >"))
+        setJSON("ozellestirme", "ayrac_uzunluk", yeniUzunluk)
+        print(ryes, "\bAYRAC UZUNLUGU DEGISTIRILMISTIR !", rbitir)
 
 def main():
     ekKomutlar = {
@@ -192,24 +244,23 @@ def main():
         "-gs": gecmis_sil,
         "-pe": lambda : path_ekle(),
         "-ta": tum_apiler,
-        "-a": lambda : print(22),
-        "-ac": lambda : print(23),
-        "-ah": lambda : print("AYARLAR YARDIM SAYFASI")
+        "-a": lambda : print("ayarlar yardım sayfası için '-a help' girin")
     }
     ayarKomutlar = {
-        "help" : lambda : print("help"),
+        "help" : lambda : print(yardim_ayarlar),
         "os" : lambda  : print("os"),
-        "config" : lambda : print("config başlat"),
-        "gecmis" : lambda : print("gecmis duzenle"),
-        "ayrac" : lambda : print("ayrac sembol"),
-        "uzunluk": lambda : print("ayrac uzunluk")
+        "config" : lambda : ayarlar_cfg_baslat(True),
+        "gecmis" : lambda : ayarlar_cfg_baslat(False),
+        "sembol" : lambda : ayarlar_ozellestirme(True),
+        "uzunluk": lambda : ayarlar_ozellestirme(False),
+        "ackapa": lambda : ackapa()
     }
     if len(sys.argv) == 1:
         print(rkir,'hiç parametre girmediniz yardım için "-h"',rbitir,sep='')
     elif len(sys.argv) > 3:
         print(rkir,'fazladan parametre girdiniz yardım için "-h"',rbitir,sep='')
-    elif len(sys.argv) == 2:
-        if sys.argv[1] in "-a -ac" and sys.argv[2] in ayarKomutlar:
+    elif len(sys.argv) == 3:
+        if sys.argv[1] in "-a" and sys.argv[2] in ayarKomutlar:
             ayarKomutlar[sys.argv[2]]()
     else:
         if sys.argv[1] in ekKomutlar:
@@ -220,11 +271,11 @@ def main():
                 if len(sys.argv) == 3:
                    print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes,"BASARILI[+]\n",rbitir,
                          rmav,istekYapAPI(url,sys.argv[2])
-                         ,rbitir,sep='')
+                         ,rbitir+rmav+ asembol*auzunluk + rbitir,sep='')
                 else:
                     print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes, "BASARILI[+]\n", rbitir,
                           rmav,istekYapAPI(url)
-                          , rbitir,sep='')
+                          , rbitir,rmav+ asembol*auzunluk + rbitir,sep='')
             except (requests.exceptions.InvalidSchema,requests.exceptions.InvalidURL,) as hata:
                 print(rmav,'HATA : ',rbitir,rkir,hata,rbitir,'\nyanlış yada eksik URL girdiniz',sep='')
 
