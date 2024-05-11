@@ -26,7 +26,7 @@ def setJSON(kategori, key, yeniKey):
         cfg.seek(0)
         json.dump(veri, cfg,indent=4)
 
-versiyon = "lss_executable-v1.1.0-alpha"
+versiyon = "lss_executable-v1.1.1-alpha"
 
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
@@ -147,8 +147,10 @@ def guncellemeVarMi():
             r = requests.get('https://api.github.com/repos/why20w18/lss-url-shorter-cli/releases/latest')
             guncel_release = r.json()
             guncel_versiyon = guncel_release["name"]
-            indirme_link = guncel_release["assets"][0]["browser_download_url"]
+            indirme_link = guncel_release["zipball_url"]
             boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
+            tag_adi = guncel_release["tag_name"]
+            dizin_adi = guncel_release["name"]
             guncelDegil = True
         else:
             print(rkir,'GUNCELLEME AYARLARINI KAPATTINIZ TEKRAR ACMAK ICIN ./lss -a help',rbitir,sep='')
@@ -156,27 +158,21 @@ def guncellemeVarMi():
 
         try:
             if sys.argv[2] == "kur" and cfg_guncelleme:
-                klasor = os.listdir(".")
-                print('gerekli dosyalar kontrol ediliyor ...')
-                if ".gecmis.txt" in klasor:
-                    print('gerekli dosyalar kontrol edildi eksik yok')
-                else:
-                    os.system("touch .gecmis.txt")
-                    print('eksik dosyalar olusturuldu')
-
-                print("lss executable indirmesi başladı ...")
-                os.system("mv lss lss_eski")
+                os.mkdir("lss_yeni_versiyon")
+                os.chdir("lss_yeni_versiyon")
 
                 print(rkir,"toplam indirme boyutu : ",boyut, "MB", rbitir+"\n",sep='')
                 subprocess.run(["wget", indirme_link])
 
-                print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi", rbitir,sep='\n')
+                print(rbitir,ryes+"\n\nwhy20w18","\bindirme tamamlandi[+]\ncikartma islemi yapiliyor...", rbitir,sep='\n')
+                subprocess.run(["unzip",tag_adi+".zip"])
+                print(ryes+"zip cikartma islemi basarili [+]"+rbitir)
+                os.chdir(dizin_adi)
                 os.chmod("lss",0o755)
-
-                print(rmav,guncel_versiyon, "başlatılıyor !\n\n\n\n\nGIRILEN KOMUT:./lss -h\n",rbitir)
-                os.system("./lss -h")
-
-                print(rkir,"\n\n\nGUNCEL VERSIYONU KULLANMAK ICIN './lss -h' YAZIN",rbitir,sep='')
+                print(ryes+"yetkilendirme basarili[+]"+rbitir)
+                print(rmav+guncel_versiyon+" başlatılıyor !\n\n\n\n"+rbitir)
+                os.system("./lss -v && ./lss -uc")
+                print(ryes,"GUNCELLEME BASARIYLA TAMAMLANDI [+]",rbitir,sep='')
                 guncelDegil = False
 
         except IndexError as hata:
