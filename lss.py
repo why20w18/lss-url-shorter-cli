@@ -197,7 +197,17 @@ def guncellemeVarMi():
         print(rmav,"\bINTERNET COK YAVAS - ISTEK ZAMAN ASIMINA UGRADI",rbitir)
 
 def path_ekle():
-    betik = os.system("$SHELL")
+    kabuk = subprocess.check_output("echo $SHELL",shell=True).decode().strip()[5:]
+    user = subprocess.check_output("whoami",shell=True).decode().strip()
+
+    kabuk = "~/." + kabuk + "rc"
+    eklenecek_dizin = os.getcwd()
+    os.chmod(".pe.sh",0o755)
+
+    print(ryes,"\bPATH ICIN IZINLER VERILDI",rbitir)
+    os.system("./.pe.sh "+eklenecek_dizin+" "+kabuk)
+
+    print(ryes,"\b"+user +"adlı kullanıcının kullandığı "+kabuk+" adlı dizine lss eklenmiştir", rbitir)
 
 def ackapa():
     durum = str(getJSON("ozellestirme","guncelleme_kontrol"))
@@ -215,7 +225,7 @@ def ayarlar_cfg_baslat(cfgMi):
     ls = os.listdir()
     for s in ls:
         if cfgMi:
-            subprocess.run(["nano",".config.json"])
+            subprocess.run(["nano","~../.config.json"])
             break
         else:
             subprocess.run(["nano", ".gecmis.txt"])
