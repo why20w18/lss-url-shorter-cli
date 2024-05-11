@@ -26,7 +26,7 @@ def setJSON(kategori, key, yeniKey):
         cfg.seek(0)
         json.dump(veri, cfg,indent=4)
 
-versiyon = "lss_executable-v1.1.2-alpha"
+versiyon = "lss_executable-v1.1.3-alpha"
 
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
@@ -148,7 +148,7 @@ def guncellemeVarMi():
             guncel_release = r.json()
             guncel_versiyon = guncel_release["name"]
             indirme_link = guncel_release["zipball_url"]
-            boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
+            #boyut = round(int(guncel_release["assets"][0]["size"]) / (2**20),2) #mb
             tag_adi = guncel_release["tag_name"]
             dizin_adi = guncel_release["name"]
             guncelDegil = True
