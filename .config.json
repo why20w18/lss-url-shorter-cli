@@ -2,7 +2,8 @@
   "ozellestirme": {
     "ayrac_sembol": "--",
     "ayrac_uzunluk": 45,
-    "guncelleme_kontrol": "True"
+    "guncelleme_kontrol": "",
+    "guncelleme_kontrol_HAKKINDA": "acmak icin true yazin kapatmak icinse bos birakin"
 
   },
   "kaynakAPI": {
