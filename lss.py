@@ -5,8 +5,13 @@ import requests
 import random
 from datetime import datetime
 import subprocess
+import time
 
-versiyon = "lss_executable-v1.1.5-alpha"
+versiyon = "lss_executable-v1.1.6-alpha"
+rkir = "\033[1;31m"
+ryes = "\033[1;32m"
+rmav = "\033[1;34m"
+rbitir = "\033[0m"
 
 def gizleyici():
     listdir = os.listdir()
@@ -33,12 +38,6 @@ def setJSON(kategori, key, yeniKey):
         json.dump(veri, cfg,indent=4)
 
 
-
-rkir = "\033[1;31m"
-ryes = "\033[1;32m"
-rmav = "\033[1;34m"
-rbitir = "\033[0m"
-
 asembol = getJSON("ozellestirme","ayrac_sembol")
 auzunluk = getJSON("ozellestirme","ayrac_uzunluk")
 
@@ -57,6 +56,8 @@ yardim = rmav+ asembol*auzunluk + rbitir + f'''
     
       EK KOMUTLAR:
     {rmav}lss{rbitir} {rkir}-h{rbitir}       : yardım sayfasını başlatır                      (help)
+    
+    {rmav}lss{rbitir} {rkir}-plls{rbitir}    : GNU projesi pllr2 desteği entegrasyonu sayfası (pllr2-lls)
     
     {rmav}lss{rbitir} {rkir}-v{rbitir}       : versiyon numarası sayfasını başlatır           (versiyon)
     {rmav}lss{rbitir} {rkir}-uc{rbitir}      : güncelleme varmi kontrol eder                  (update-check)
@@ -83,15 +84,15 @@ yardim_ayarlar = rmav+ asembol*auzunluk + rbitir + f'''
       IKINCIL ARGUMANLAR:
     {rmav}lss{rbitir} {rkir}-a{rbitir} help         : ayarlar yardım sayfasını başlatır
     
-    {rmav}lss{rbitir} {rkir}-a{rbitir} ackapa       : otomatik güncelleştirmeleri açıp kapatır (./lss -uc DEVREDIŞI KALIR) 
-    {rmav}lss{rbitir} {rkir}-a{rbitir} cfg          : config dosyasını düzenlemeyi başlatır    (nano yüklü olmalıdır)
+    {rmav}lss{rbitir} {rkir}-a{rbitir} ackapa       : otomatik güncelleştirmeleri açıp kapatır              (./lss -uc DEVREDIŞI KALIR) 
+    {rmav}lss{rbitir} {rkir}-a{rbitir} cfg          : config dosyasını düzenlemeyi başlatır                 (nano yüklü olmalıdır)
     {rmav}lss{rbitir} {rkir}-a{rbitir} sembol       : config ayraç değişimi özelleştirmesi
     {rmav}lss{rbitir} {rkir}-a{rbitir} uzunluk      : config ayraç uzunluğu özelleştirmesi
         
         
     {rmav}lss{rbitir} {rkir}-a{rbitir} os           : işletim sistemi bilgilerini getirir 
     
-    {rmav}lss{rbitir} {rkir}-a{rbitir} gecmis       : geçmiş dosyasını düzenlemeyi başlatır    (nano yüklü olmalıdır)
+    {rmav}lss{rbitir} {rkir}-a{rbitir} gecmis       : geçmiş dosyasını düzenlemeyi başlatır                 (nano yüklü olmalıdır)
     
     https://github.com/\033[1;36mwhy20w18\033[0m
 '''+rmav+ asembol*auzunluk + rbitir
@@ -115,6 +116,7 @@ def istekYapAPI(url,apiSec=randomAPI()):
     sonuc = r.text if r.status_code == 200 else "hata kodu:"+str(r.status_code)
     gecmis_kayit(temizURL,sonuc)
     return sonuc
+
 
 def gecmis_kayit(url,shortURL):
     with open('.gecmis.txt','a') as gecmis:
@@ -164,21 +166,33 @@ def guncellemeVarMi():
                 user = subprocess.check_output("whoami", shell=True).decode().strip()
                 os.chdir("/home/"+user)
                 os.mkdir(str(dizin_adi))
-                os.chdir(str(dizin_adi))
+
 
                 print(rkir,"INDIRME BASLADI"+rbitir+"\n",sep='')
                 print(rkir+"INDIRME KONUMU: /home/"+user+"/"+dizin_adi,rbitir)
                 topindirme = len(guncel_release["assets"])
                 for s in range(0,topindirme):
+                    print(ryes + str(s + 1) + "/" + topindirme + " BASLADI",rbitir + rmav + "<->why20w18/lss-url-shorter-cli/releases/latest", rbitir)
+                    time.sleep(2)
                     os.system("clear")
+                    if guncel_release["assets"][s]["name"] == "lls":
+                        os.chdir(str(dizin_adi))
+                        subprocess.run(["wget", guncel_release["assets"][s]["browser_download_url"]])
+                        os.chdir("/home/" + user)
+                        continue
+
                     subprocess.run(["wget", guncel_release["assets"][s]["browser_download_url"]])
-                    print(ryes+str(s+1)+"/"+topindirme+" TAMAMLANDI",rbitir+rmav+"<->why20w18/lss-url-shorter-cli/releases/latest",rbitir)
-                    input("ENTER TUSUNA BASIN")
+                for s in os.listdir():
+                    if s in ["gecmis.txt","pe.sh","config.json"]:
+                        os.system("cp "+s+" "+dizin_adi+"/")
+                        os.system("mv "+s+" ."+s)
 
                 os.system("clear")
                 print(rbitir,ryes+"\n\nwhy20w18","\bINDIRME TAMAMLANDI[+]\n", rbitir,sep='\n')
 
+                os.chdir(str(dizin_adi))
                 os.chmod("lss",0o755)
+                os.rmdir("/home/" + user + "/" + versiyon)
 
                 print(ryes+"YETKILENDIRME TAMAMLANDI [+]"+rbitir)
 
@@ -187,8 +201,6 @@ def guncellemeVarMi():
                 path_ekle(dizin_adi)
                 print(ryes+"PATH EKLEME ISLEMI TAMAMLANDI [+]"+rbitir)
 
-                os.system("mv config.json .config.json")
-                os.system("mv gecmis.txt .gecmis.txt")
 
                 os.system("clear")
                 print(rmav + guncel_versiyon + " BASLATILIYOR !\n\n\n\n" + rbitir)
@@ -314,6 +326,7 @@ def main():
 
 
 if sys.version_info.major == 3 and sys.version_info.minor >= 3:
+
     gizleyici()
     main()
 else:
