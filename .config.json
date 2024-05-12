@@ -11,8 +11,11 @@
     "kaynakAPI": {
         "kaynak_sayisi": 4,
         "k1": "https://ulvis.net/api.php?url=",
-        "k2": "https://ulvis.net/api.php?url=",
+        "k2": "https://tls.tc/Home/LinkOlustur/",
         "k3": "https://ulvis.net/api.php?url=",
-        "k4": "https://ulvis.net/api.php?url="
+        "k4": "https://tls.tc/Home/LinkOlustur/"
     }
 }
+
+
+

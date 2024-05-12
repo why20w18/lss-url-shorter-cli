@@ -7,7 +7,7 @@ from datetime import datetime
 import subprocess
 import time
 
-versiyon = "lss_executable-v1.1.6-alpha"
+versiyon = "lss_executable-v1.1.7-alpha"
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
 rmav = "\033[1;34m"
@@ -105,17 +105,36 @@ def randomAPI():
 #shellden girilen ikinci argumana gore json dosyasindan api sec
 def istekYapAPI(url,apiSec=randomAPI()):
     temizURL = "https://"+url+"/"
-    ##python3 lss.py www.google.com k1 HATA STRING CEVIR
+
     try:
-        API = getJSON("kaynakAPI",apiSec)
-        r = requests.get(str(API)+temizURL)
+        API = getJSON("kaynakAPI",apiSec) #VALUE GETIRIR
+
+        #genel API ekleme semasi
+        if apiSec != "k2":
+            r = requests.get(str(API)+temizURL)
+            sonuc = r.text if r.status_code == 200 else "hata kodu:" + str(r.status_code)
+            gecmis_kayit(temizURL, sonuc)
+            return sonuc
+
+        elif apiSec == "k2":
+
+            data = {
+                "uzunlink": temizURL,
+            }
+
+            r = requests.post(API, data=data)
+
+            if r.status_code == 200:
+                sonuc = r.json()
+                kisaLink = sonuc["url"]["kisA_URL"]
+                return str(kisaLink)
+            else:
+                print("hata kodu:", r.status_code)
+
+
     except requests.exceptions.ConnectionError:
         print(rmav,"\bINTERNET COK YAVAS - ISTEK ZAMAN ASIMINA UGRADI",rbitir)
         quit()
-
-    sonuc = r.text if r.status_code == 200 else "hata kodu:"+str(r.status_code)
-    gecmis_kayit(temizURL,sonuc)
-    return sonuc
 
 
 def gecmis_kayit(url,shortURL):
@@ -282,7 +301,6 @@ def main():
         "-g": gecmis_oku,
         "-gs": gecmis_sil,
         "-ta": tum_apiler,
-        "-a": lambda : print("ayarlar yardım sayfası için '-a help' girin")
     }
     ayarKomutlar = {
         "help" : lambda : print(yardim_ayarlar),
@@ -296,10 +314,10 @@ def main():
     if len(sys.argv) == 1:
         print(rkir,'hiç parametre girmediniz yardım için "-h"',rbitir,sep='')
 
-    elif len(sys.argv) == 3:
-        if sys.argv[1] in "-a" and sys.argv[2] in ayarKomutlar:
+    elif len(sys.argv) == 3 and sys.argv[2] in ["-a","-uc"]:
+        if sys.argv[1] == "-a" and sys.argv[2] in ayarKomutlar:
             ayarKomutlar[sys.argv[2]]()
-        elif sys.argv[1] in "-uc" and sys.argv[2] == "kur":
+        elif sys.argv[1] == "-uc" and sys.argv[2] == "kur":
             guncellemeVarMi()
 
     elif len(sys.argv) > 3:
@@ -315,10 +333,12 @@ def main():
                    print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes,"BASARILI[+]\n",rbitir,
                          rmav,istekYapAPI(url,sys.argv[2])
                          ,rbitir+"\n"+rmav+ asembol*auzunluk + rbitir,sep='')
+
                 else:
                     print(rmav+ asembol*auzunluk + rbitir+"\n"+ryes, "BASARILI[+]\n", rbitir,
                           rmav,istekYapAPI(url)
                           ,rbitir,"\n"+rmav+ asembol*auzunluk + rbitir,sep='')
+
             except (requests.exceptions.InvalidSchema,requests.exceptions.InvalidURL,) as hata:
                 print(rmav,'HATA : ',rbitir,rkir,hata,rbitir,'\nyanlış yada eksik URL girdiniz',sep='')
 
