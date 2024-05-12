@@ -7,7 +7,7 @@ from datetime import datetime
 import subprocess
 import time
 
-versiyon = "lss_executable-v1.1.7-alpha"
+versiyon = "lss_executable-v1.1.8-alpha"
 rkir = "\033[1;31m"
 ryes = "\033[1;32m"
 rmav = "\033[1;34m"
